@@ -1,0 +1,89 @@
+doctype: "com.datagridsys.doctype/skopos/model"
+version: 1
+
+components:
+
+    nginx:
+        image: nginx
+        visual:
+            x: 100
+            y: 100
+
+    nginx2:
+        image: nginx:stable-alpine
+        visual:
+            x: 100
+            y: 300
+
+    httpd:
+        image: httpd
+        visual:
+            x: 100
+            y: 500
+
+    httpd2:
+        image: httpd:2-alpine
+        visual:
+            x: 100
+            y: 700
+
+    tomcat:
+        image: tomcat
+        visual:
+            x: 400
+            y: 100
+
+    tomcat2:
+        image: tomcat:9-alpine
+        visual:
+            x: 400
+            y: 300
+
+    tomee:
+        image: tomee
+        visual:
+            x: 400
+            y: 500
+
+    tomee2:
+        image: tomee:8-jre-7.0.2-webprofile
+        visual:
+            x: 400
+            y: 700
+
+    consul:
+        image: consul
+        visual:
+            x: 700
+            y: 100
+
+    consul2:
+        image: consul:0.9.0
+        visual:
+            x: 700
+            y: 300
+
+    pro-consul:
+        image: progrium/consul
+        visual:
+            x: 700
+            y: 500
+
+    # note:  cannot run 2 of these oob
+    # pro-consul2:
+    #     image: progrium/consul:consul-0.4
+    #     visual:
+    #         x: 700
+    #         y: 700
+
+    memcached:
+        image: memcached
+        visual:
+            x: 1000
+            y: 100
+
+    memcached2:
+        image: memcached:1.5.0-alpine
+        visual:
+            x: 1000
+            y: 300

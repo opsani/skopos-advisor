@@ -1,0 +1,168 @@
+vars:
+    # general vars
+    sks_probe_ver:      "v1"
+    sks_label_pfx:      "AUTO-GATE: "
+
+    # ports for service checks
+    sks_redis_port:     "6379"
+    sks_postgres_port:  "5432"
+    sks_mongo_port:     "27017"
+    sks_mariadb_port:   "3306"
+    sks_elastic_port:   "9200"
+    sks_kibana_port:    "5601"
+    sks_consul_port:    "8500"
+    sks_tomcat_port:    "8080"
+    sks_memcached_port: "11211"
+
+quality_gates:
+
+    # check redis service is up
+    redis:
+        images:
+            - redis
+            - redis:*
+        steps:
+            - probe:
+                image:   opsani/probe-redis:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} redis service_up port ${sks_redis_port}"
+                arguments:  { port: "${sks_redis_port}" }
+
+    # check postgres service is up
+    postgres:
+        images:
+            - postgres
+            - postgres:*
+        steps:
+            - probe:
+                image:   opsani/probe-postgres:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} postgres service_up port ${sks_postgres_port}"
+                arguments:  { port: "${sks_postgres_port}" }
+
+    # check mongo service is up
+    mongo:
+        images:
+            - mongo
+            - mongo:*
+        steps:
+            - probe:
+                image:   opsani/probe-mongo:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} mongo service_up port ${sks_mongo_port}"
+                arguments:  { port: "${sks_mongo_port}" }
+
+    # check mariadb/mysql service is up
+    mariadb:
+        images:
+            - mariadb
+            - mysql
+            - mysql/mysql-server
+            - mariadb:*
+            - mysql:*
+            - mysql/mysql-server:*
+        steps:
+            - probe:
+                image:   opsani/probe-mariadb:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} mariadb service_up port ${sks_mariadb_port}"
+                arguments:  { port: "${sks_mariadb_port}" }
+
+    # check HTTP service is up (images expose port 80 HTTP interface)
+    http_default:
+        images:
+            - phpmyadmin/phpmyadmin
+            - phpmyadmin/phpmyadmin:*
+            - wordpress
+            - wordpress:*
+            - bekt/logspout-logstash
+            - bekt/logspout-logstash:*
+            - gliderlabs/logspout
+            - gliderlabs/logspout:*
+            - imriz/logspout
+            - imriz/logspout:*
+            - nginx
+            - nginx:*
+            - httpd
+            - httpd:*
+        steps:
+            - probe:
+                image:   opsani/probe-http:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} http service_up port 80"
+                arguments:  { schema: http, port: "80", path: "/" }
+
+    # check elasticsearch service is up
+    # note:  ports 9200 (JSON) and 9300 (tcp transport) are exposed on the image
+    elasticsearch:
+        images:
+            - elasticsearch
+            - elasticsearch:*
+            - docker.elastic.co/elasticsearch/elasticsearch
+            - docker.elastic.co/elasticsearch/elasticsearch:*
+        steps:
+            - probe:
+                image:   opsani/probe-tcp-connect:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} tcp-connect service_up port ${sks_elastic_port}"
+                arguments:  { port: "${sks_elastic_port}" }
+
+    # check kibana service is up
+    # note: kibana is slooow to bring up its web interface => increase timeout
+    kibana:
+        images:
+            - kibana
+            - kibana:*
+            - docker.elastic.co/kibana/kibana
+            - docker.elastic.co/kibana/kibana:*
+            - sebp/elk         # exposes kibana web interface (may be suppressed
+            - sebp/elk:*       # with env var)
+        steps:
+            - probe:
+                image:   opsani/probe-http:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} http service_up port ${sks_kibana_port}"
+                timeout: 600
+                arguments:  { schema: http, port: "${sks_kibana_port}", path: "/" , timeout: "300"}
+
+    # check tomcat service is up
+    tomcat:
+        images:
+            - tomcat
+            - tomcat:*
+            - tomee
+            - tomee:*
+        steps:
+            - probe:
+                image:   opsani/probe-http:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} http service_up port ${sks_tomcat_port}"
+                arguments:  { schema: http, port: "${sks_tomcat_port}", path: "/" }
+
+    # check consul service is up
+    # note:  we use the consule HTTP API port 8500 for the check
+    # see:  https://www.consul.io/docs/agent/options.html#ports
+    consul:
+        images:
+            - consul
+            - consul:*
+            - progrium/consul
+            - progrium/consul:*
+        steps:
+            - probe:
+                image:   opsani/probe-tcp-connect:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} tcp-connect service_up port ${sks_consul_port}"
+                arguments:  { port: "${sks_consul_port}" }
+
+    # check memcached service is up
+    memcached:
+        images:
+            - memcached
+            - memcached:*
+        steps:
+            - probe:
+                image:   opsani/probe-tcp-connect:${sks_probe_ver}
+                action:  service_up
+                label:   "${sks_label_pfx} tcp-connect service_up port ${sks_memcached_port}"
+                arguments:  { port: "${sks_memcached_port}" }

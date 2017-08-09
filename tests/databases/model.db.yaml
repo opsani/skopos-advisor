@@ -1,0 +1,129 @@
+doctype: "com.datagridsys.doctype/skopos/model"
+version: 1
+
+components:
+    redis:
+        image: redis
+        singleton: true
+        provides:
+            ports: [ "${redis_port}" ]
+        visual:
+            x: 100
+            y: 100
+
+    postgres:
+        image: postgres
+        singleton: true
+        provides:
+            ports: [ "${postgres_port}" ]
+        visual:
+            x: 400
+            y: 100
+
+    mongo:
+        image: mongo
+        singleton: true
+        provides:
+            ports: [ "${mongo_port}" ]
+        visual:
+            x: 700
+            y: 100
+
+    mariadb:
+        image: mariadb
+        singleton: true
+        provides:
+            ports: [ "${mariadb_port}" ]
+        env:
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+        visual:
+            x: 700
+            y: 300
+
+    mysql:
+        image: mysql
+        singleton: true
+        provides:
+            ports: [ "${mariadb_port}" ]
+        env:
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+        visual:
+            x: 700
+            y: 500
+
+    mysql-srv:
+        image: mysql/mysql-server
+        singleton: true
+        provides:
+            ports: [ "${mariadb_port}" ]
+        env:
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+        visual:
+            x: 700
+            y: 700
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        replicas: 1
+        provides:
+            ports: [ "80" ]
+        uses:
+            mariadb: {}
+            mysql: {}
+            mysql-srv: {}
+        env:
+            MYSQL_USERNAME: ${MYSQL_USER}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            PMA_ARBITRARY: 1
+        visual:
+            x: 400
+            y: 500
+
+    wordpress:
+        image: wordpress
+        replicas: 1
+        provides:
+            ports: [ "80" ]
+        uses:
+            mariadb: {}
+        env:
+            WORDPRESS_DB_HOST: mariadb
+            WORDPRESS_DB_USER: ${MYSQL_USER}
+            WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+            WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+        visual:
+            x: 400
+            y: 300
+
+gateways:
+    gwy-10010:
+        type: host_port
+        exposes:
+            - port: "10010"
+              target_port: "80"
+        target: [ phpmyadmin ]
+        visual:
+            x: 100
+            y: 500
+
+    gwy-10011:
+        type: host_port
+        exposes:
+            - port: "10011"
+              target_port: "80"
+        target: [ wordpress ]
+        visual:
+            x: 100
+            y: 300
