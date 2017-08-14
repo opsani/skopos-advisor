@@ -1,7 +1,10 @@
 vars:
     # general vars
-    sks_probe_ver:      "v1"
-    sks_label_pfx:      "AUTO-GATE: "
+    sks_probe_ver:     ""
+    sks_lbl_pfx:       "AutoGate:"
+    sks_lbl_tcp_act:   ""
+    sks_lbl_http_act:  "service_up "
+    sks_lbl_svc_act:   "service_up "
 
     # ports for service checks
     sks_redis_port:     "6379"
@@ -23,9 +26,9 @@ quality_gates:
             - redis:*
         steps:
             - probe:
-                image:   opsani/probe-redis:${sks_probe_ver}
+                image:   opsani/probe-redis${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} redis service_up port ${sks_redis_port}"
+                label:   "${sks_lbl_pfx} redis ${sks_lbl_svc_act}port ${sks_redis_port}"
                 arguments:  { port: "${sks_redis_port}" }
 
     # check postgres service is up
@@ -35,9 +38,9 @@ quality_gates:
             - postgres:*
         steps:
             - probe:
-                image:   opsani/probe-postgres:${sks_probe_ver}
+                image:   opsani/probe-postgres${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} postgres service_up port ${sks_postgres_port}"
+                label:   "${sks_lbl_pfx} postgres ${sks_lbl_svc_act}port ${sks_postgres_port}"
                 arguments:  { port: "${sks_postgres_port}" }
 
     # check mongo service is up
@@ -47,9 +50,9 @@ quality_gates:
             - mongo:*
         steps:
             - probe:
-                image:   opsani/probe-mongo:${sks_probe_ver}
+                image:   opsani/probe-mongo${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} mongo service_up port ${sks_mongo_port}"
+                label:   "${sks_lbl_pfx} mongo ${sks_lbl_svc_act}port ${sks_mongo_port}"
                 arguments:  { port: "${sks_mongo_port}" }
 
     # check mariadb/mysql service is up
@@ -63,9 +66,9 @@ quality_gates:
             - mysql/mysql-server:*
         steps:
             - probe:
-                image:   opsani/probe-mariadb:${sks_probe_ver}
+                image:   opsani/probe-mariadb${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} mariadb service_up port ${sks_mariadb_port}"
+                label:   "${sks_lbl_pfx} mariadb ${sks_lbl_svc_act}port ${sks_mariadb_port}"
                 arguments:  { port: "${sks_mariadb_port}" }
 
     # check HTTP service is up (images expose port 80 HTTP interface)
@@ -87,9 +90,9 @@ quality_gates:
             - httpd:*
         steps:
             - probe:
-                image:   opsani/probe-http:${sks_probe_ver}
+                image:   opsani/probe-http${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} http service_up port 80"
+                label:   "${sks_lbl_pfx} http ${sks_lbl_http_act}port 80"
                 arguments:  { schema: http, port: "80", path: "/" }
 
     # check elasticsearch service is up
@@ -102,9 +105,9 @@ quality_gates:
             - docker.elastic.co/elasticsearch/elasticsearch:*
         steps:
             - probe:
-                image:   opsani/probe-tcp-connect:${sks_probe_ver}
+                image:   opsani/probe-tcp-connect${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} tcp-connect service_up port ${sks_elastic_port}"
+                label:   "${sks_lbl_pfx} tcp-connect ${sks_lbl_tcp_act}port ${sks_elastic_port}"
                 arguments:  { port: "${sks_elastic_port}" }
 
     # check kibana service is up
@@ -119,13 +122,14 @@ quality_gates:
             - sebp/elk:*       # with env var)
         steps:
             - probe:
-                image:   opsani/probe-http:${sks_probe_ver}
+                image:   opsani/probe-http${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} http service_up port ${sks_kibana_port}"
+                label:   "${sks_lbl_pfx} http ${sks_lbl_http_act}port ${sks_kibana_port}"
                 timeout: 600
                 arguments:  { schema: http, port: "${sks_kibana_port}", path: "/" , timeout: "300"}
 
     # check tomcat service is up
+    # note: tomcat occassionally misses the 30s default tout => increate timeout
     tomcat:
         images:
             - tomcat
@@ -134,10 +138,10 @@ quality_gates:
             - tomee:*
         steps:
             - probe:
-                image:   opsani/probe-http:${sks_probe_ver}
+                image:   opsani/probe-http${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} http service_up port ${sks_tomcat_port}"
-                arguments:  { schema: http, port: "${sks_tomcat_port}", path: "/" }
+                label:   "${sks_lbl_pfx} http ${sks_lbl_http_act}port ${sks_tomcat_port}"
+                arguments:  { schema: http, port: "${sks_tomcat_port}", path: "/", timeout: "60"}
 
     # check consul service is up
     # note:  we use the consule HTTP API port 8500 for the check
@@ -150,9 +154,9 @@ quality_gates:
             - progrium/consul:*
         steps:
             - probe:
-                image:   opsani/probe-tcp-connect:${sks_probe_ver}
+                image:   opsani/probe-tcp-connect${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} tcp-connect service_up port ${sks_consul_port}"
+                label:   "${sks_lbl_pfx} tcp-connect ${sks_lbl_tcp_act}port ${sks_consul_port}"
                 arguments:  { port: "${sks_consul_port}" }
 
     # check memcached service is up
@@ -162,7 +166,7 @@ quality_gates:
             - memcached:*
         steps:
             - probe:
-                image:   opsani/probe-tcp-connect:${sks_probe_ver}
+                image:   opsani/probe-tcp-connect${sks_probe_ver}
                 action:  service_up
-                label:   "${sks_label_pfx} tcp-connect service_up port ${sks_memcached_port}"
+                label:   "${sks_lbl_pfx} tcp-connect ${sks_lbl_tcp_act}port ${sks_memcached_port}"
                 arguments:  { port: "${sks_memcached_port}" }
