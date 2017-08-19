@@ -20,7 +20,7 @@ vars:
 quality_gates:
 
     # check redis service is up
-    redis:
+    sks_redis:
         images:
             - redis
             - redis:*
@@ -32,7 +32,7 @@ quality_gates:
                 arguments:  { port: "${sks_redis_port}" }
 
     # check postgres service is up
-    postgres:
+    sks_postgres:
         images:
             - postgres
             - postgres:*
@@ -44,7 +44,7 @@ quality_gates:
                 arguments:  { port: "${sks_postgres_port}" }
 
     # check mongo service is up
-    mongo:
+    sks_mongo:
         images:
             - mongo
             - mongo:*
@@ -56,7 +56,7 @@ quality_gates:
                 arguments:  { port: "${sks_mongo_port}" }
 
     # check mariadb/mysql service is up
-    mariadb:
+    sks_mariadb:
         images:
             - mariadb
             - mysql
@@ -72,7 +72,7 @@ quality_gates:
                 arguments:  { port: "${sks_mariadb_port}" }
 
     # check HTTP service is up (images expose port 80 HTTP interface)
-    http_default:
+    sks_http_default:
         images:
             - phpmyadmin/phpmyadmin
             - phpmyadmin/phpmyadmin:*
@@ -97,7 +97,7 @@ quality_gates:
 
     # check elasticsearch service is up
     # note:  ports 9200 (JSON) and 9300 (tcp transport) are exposed on the image
-    elasticsearch:
+    sks_elasticsearch:
         images:
             - elasticsearch
             - elasticsearch:*
@@ -112,7 +112,7 @@ quality_gates:
 
     # check kibana service is up
     # note: kibana is slooow to bring up its web interface => increase timeout
-    kibana:
+    sks_kibana:
         images:
             - kibana
             - kibana:*
@@ -130,7 +130,7 @@ quality_gates:
 
     # check tomcat service is up
     # note: tomcat occassionally misses the 30s default tout => increate timeout
-    tomcat:
+    sks_tomcat:
         images:
             - tomcat
             - tomcat:*
@@ -146,7 +146,7 @@ quality_gates:
     # check consul service is up
     # note:  we use the consule HTTP API port 8500 for the check
     # see:  https://www.consul.io/docs/agent/options.html#ports
-    consul:
+    sks_consul:
         images:
             - consul
             - consul:*
@@ -160,7 +160,7 @@ quality_gates:
                 arguments:  { port: "${sks_consul_port}" }
 
     # check memcached service is up
-    memcached:
+    sks_memcached:
         images:
             - memcached
             - memcached:*

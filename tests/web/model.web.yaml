@@ -1,10 +1,20 @@
 doctype: "com.datagridsys.doctype/skopos/model"
 version: 1
 
+lifecycle:
+    skip_autogates: false
+
 components:
 
     nginx:
         image: nginx
+        lifecycle:
+            skip_autogates: false
+            quality_probe:
+                steps:
+                    - probe:
+                        image: opsani/probe-http
+                        label: "probe: from model lifecycle"
         visual:
             x: 100
             y: 100
