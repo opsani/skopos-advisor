@@ -77,7 +77,8 @@ quality_gates:
             - phpmyadmin/phpmyadmin
             - phpmyadmin/phpmyadmin:*
             - wordpress
-            - wordpress:*
+            # temporary disabled, due to a problem with the 'fpm' tag which does not actually expose port 80
+            #- wordpress:*
             - bekt/logspout-logstash
             - bekt/logspout-logstash:*
             - gliderlabs/logspout
